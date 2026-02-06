@@ -1,9 +1,10 @@
 const axios = require("axios");
-const simsim = "https://api.cyber-ninjas.top";
+const simsim = "https://simsimi-api-tjb1.onrender.com";
 
 module.exports = {
   config: {
     name: "baby",
+    aliases: ["hippi"],
     version: "2.0.0",
     author: "rX",
     countDown: 0,
