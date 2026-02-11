@@ -32,7 +32,7 @@ module.exports = {
     author: "MOHAMMAD AKASH",
     role: 0,
     shortDescription: "Place a bet and win money",
-    category: "game",
+    category: "economy",
     guide: { en: "{p}bet <amount>" }
   },
 
