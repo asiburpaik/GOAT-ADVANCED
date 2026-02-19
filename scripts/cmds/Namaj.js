@@ -1,161 +1,136 @@
-const axios = require("axios");
-const { createCanvas, loadImage } = require("canvas");
-const fs = require("fs-extra");
-const path = require("path");
-const schedule = require("node-schedule"); // cron scheduler
+const axios = require('axios');
+const { createCanvas, loadImage } = require('canvas');
+const fs = require('fs-extra');
+const path = require('path');
 
-const cacheDir = path.resolve(process.cwd(), "cache");
+const cacheDir = path.resolve(process.cwd(), 'cache');
 
-// =========================
-// TIME CONVERSION
-// =========================
 function to12Hour(time24) {
-  let [h, m] = time24.split(":");
-  h = parseInt(h);
-  const ampm = h >= 12 ? "PM" : "AM";
-  h = h % 12 || 12;
-  return `${h}:${m} ${ampm}`;
+  if (!time24) return "N/A";
+  let [hour, minute] = time24.split(":");
+  hour = parseInt(hour);
+  const ampm = hour >= 12 ? "PM" : "AM";
+  hour = hour % 12 || 12;
+  return `${hour}:${minute} ${ampm}`;
 }
 
-// =========================
-// IMAGE CARD
-// =========================
-async function createCard(city, date, hijri, sehri, iftar) {
-  const width = 850;
-  const height = 520;
-  const canvas = createCanvas(width, height);
-  const ctx = canvas.getContext("2d");
+async function createRamadanCard(city, date, hijri, sehri, iftar) {
+    const width = 800;
+    const height = 500;
+    const canvas = createCanvas(width, height);
+    const ctx = canvas.getContext('2d');
 
-  try {
-    const bg = await loadImage(path.join(__dirname, "mosque_bg.png"));
-    ctx.drawImage(bg, 0, 0, width, height);
-  } catch {
-    ctx.fillStyle = "#0a0f1e";
+    // Background - Dark Islamic Theme
+    ctx.fillStyle = '#0a0f1e';
     ctx.fillRect(0, 0, width, height);
-  }
 
-  ctx.strokeStyle = "#f1c40f";
-  ctx.lineWidth = 8;
-  ctx.strokeRect(15, 15, width - 30, height - 30);
+    // Glowing Border
+    ctx.strokeStyle = '#f1c40f';
+    ctx.lineWidth = 10;
+    ctx.shadowBlur = 20;
+    ctx.shadowColor = '#f39c12';
+    ctx.strokeRect(15, 15, width - 30, height - 30);
+    ctx.shadowBlur = 0;
 
-  ctx.textAlign = "center";
-  ctx.fillStyle = "#f1c40f";
-  ctx.font = "bold 48px sans-serif";
-  ctx.fillText("🌙 RAMADAN KAREEM", width / 2, 80);
+    // Title
+    ctx.fillStyle = '#f1c40f';
+    ctx.font = 'bold 50px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('🌙 RAMADAN KAREEM', width / 2, 80);
 
-  ctx.fillStyle = "#fff";
-  ctx.font = "26px sans-serif";
-  ctx.fillText(`${city} | ${date}`, width / 2, 130);
-  ctx.fillStyle = "#ccc";
-  ctx.font = "22px sans-serif";
-  ctx.fillText(`Hijri: ${hijri}`, width / 2, 165);
+    // City & Date
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '30px sans-serif';
+    ctx.fillText(`${city.toUpperCase()} | ${date}`, width / 2, 130);
+    ctx.fillStyle = '#bdc3c7';
+    ctx.font = '25px sans-serif';
+    ctx.fillText(`Hijri: ${hijri}`, width / 2, 170);
 
-  ctx.fillStyle = "rgba(52,152,219,0.15)";
-  ctx.fillRect(110, 230, 260, 160);
-  ctx.fillStyle = "#3498db";
-  ctx.font = "bold 28px sans-serif";
-  ctx.fillText(`সেহরি: ${sehri}`, 240, 300);
+    // Sehri Box
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+    ctx.fillRect(100, 220, 250, 150);
+    ctx.strokeStyle = '#3498db';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(100, 220, 250, 150);
 
-  ctx.fillStyle = "rgba(230,126,34,0.15)";
-  ctx.fillRect(480, 230, 260, 160);
-  ctx.fillStyle = "#e67e22";
-  ctx.font = "bold 28px sans-serif";
-  ctx.fillText(`ইফতার: ${iftar}`, 610, 300);
+    ctx.fillStyle = '#3498db';
+    ctx.font = 'bold 30px sans-serif';
+    ctx.fillText('SEHRI ENDS', 225, 270);
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 40px sans-serif';
+    ctx.fillText(sehri, 225, 330);
 
-  ctx.fillStyle = "#f1c40f";
-  ctx.font = "italic 20px sans-serif";
-  ctx.fillText('"Allahumma laka sumtu wa ala rizqika aftartu"', width / 2, 440);
-  ctx.fillStyle = "#aaa";
-  ctx.font = "18px sans-serif";
-  ctx.fillText("May Allah accept your fast 🤲", width / 2, 475);
+    // Iftar Box
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+    ctx.fillRect(450, 220, 250, 150);
+    ctx.strokeStyle = '#e67e22';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(450, 220, 250, 150);
 
-  return canvas.toBuffer();
+    ctx.fillStyle = '#e67e22';
+    ctx.font = 'bold 30px sans-serif';
+    ctx.fillText('IFTAR TIME', 575, 270);
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 40px sans-serif';
+    ctx.fillText(iftar, 575, 330);
+
+    // Dua Text
+    ctx.fillStyle = '#f1c40f';
+    ctx.font = 'italic 22px sans-serif';
+    ctx.fillText('"Allahumma laka sumtu wa ala rizqika aftartu"', width / 2, 430);
+
+    ctx.fillStyle = '#bdc3c7';
+    ctx.font = '18px sans-serif';
+    ctx.fillText('May Allah accept your fasts', width / 2, 470);
+
+    return canvas.toBuffer('image/png');
 }
 
-// =========================
-// SCHEDULE REMINDER
-// =========================
-async function scheduleDaily(api, threadID, city = "Kolkata") {
-  try {
-    const res = await axios.get("http://api.aladhan.com/v1/timingsByCity", {
-      params: { city, country: "India", method: 1 }
-    });
-
-    const { timings, date } = res.data.data;
-    const sehri = to12Hour(timings.Fajr);
-    const iftar = to12Hour(timings.Maghrib);
-
-    // Schedule Sehri Reminder 10 min before Fajr
-    const [fh, fm] = timings.Fajr.split(":");
-    const fajrDate = new Date();
-    fajrDate.setHours(parseInt(fh), parseInt(fm) - 10, 0, 0);
-    schedule.scheduleJob(fajrDate, async () => {
-      const buffer = await createCard(city, date.readable, date.hijri.date, sehri, iftar);
-      await fs.ensureDir(cacheDir);
-      const imgPath = path.join(cacheDir, `sehri_${Date.now()}.png`);
-      await fs.writeFile(imgPath, buffer);
-      api.sendMessage({ body: "⏰ সেহরি 10 মিনিটে শেষ!", attachment: fs.createReadStream(imgPath) }, threadID, () => fs.unlinkSync(imgPath));
-    });
-
-    // Schedule Iftar Reminder 10 min before Maghrib
-    const [ih, im] = timings.Maghrib.split(":");
-    const iftarDate = new Date();
-    iftarDate.setHours(parseInt(ih), parseInt(im) - 10, 0, 0);
-    schedule.scheduleJob(iftarDate, async () => {
-      const buffer = await createCard(city, date.readable, date.hijri.date, sehri, iftar);
-      await fs.ensureDir(cacheDir);
-      const imgPath = path.join(cacheDir, `iftar_${Date.now()}.png`);
-      await fs.writeFile(imgPath, buffer);
-      api.sendMessage({ body: "⏰ ইফতার 10 মিনিটে!", attachment: fs.createReadStream(imgPath) }, threadID, () => fs.unlinkSync(imgPath));
-    });
-
-  } catch (e) {
-    console.log("Error scheduling daily reminders:", e);
-  }
-}
-
-// =========================
-// COMMAND MODULE
-// =========================
 module.exports = {
   config: {
     name: "ramadan",
     aliases: ["roza", "ifter"],
-    version: "10.0",
-    author: "Ultimate Cron Scheduler",
+    version: "3.0",
+    author: "Zihad Ahmed",
     countDown: 5,
     role: 0,
     category: "Islamic",
-    guide: "{pn} [city] | {pn} month"
+    guide: "{pn} [city_name]"
   },
 
   onStart: async function({ api, event, args }) {
     const { threadID, messageID } = event;
-
-    let city = args.join(" ") || "Kolkata";
-    if (city.toLowerCase().includes("hooghly")) city = "Kolkata";
-    const isMonth = city.toLowerCase() === "month";
+    const city = args.join(" ") || "kolkata";
 
     try {
-      if (isMonth) {
-        const res = await axios.get("http://api.aladhan.com/v1/calendarByCity", {
-          params: { city: "Kolkata", country: "India", method: 1, month: new Date().getMonth() + 1, year: new Date().getFullYear() }
-        });
-        let msg = "📅 Kolkata Ramadan Monthly Timetable\n\n";
-        res.data.data.slice(0, 30).forEach((d, i) => {
-          msg += `${i + 1}. সেহরি: ${to12Hour(d.timings.Fajr)} | ইফতার: ${to12Hour(d.timings.Maghrib)}\n`;
-        });
-        return api.sendMessage(msg, threadID, messageID);
-      }
+      const res = await axios.get(`http://api.aladhan.com/v1/timingsByCity`, {
+        params: {
+          city: city,
+          country: "India",
+          method: 1
+        }
+      });
 
-      // Schedule auto reminders
-      scheduleDaily(api, threadID, city);
+      const { timings, date } = res.data.data;
+      const sehriTime = to12Hour(timings.Fajr);
+      const iftarTime = to12Hour(timings.Maghrib);
 
-      api.sendMessage(`✅ Daily Ramadan reminders scheduled for ${city}`, threadID, messageID);
+      const buffer = await createRamadanCard(city, date.readable, date.hijri.date, sehriTime, iftarTime);
+      const imagePath = path.join(cacheDir, `ramadan_${threadID}.png`);
 
-    } catch (e) {
-      console.log(e);
-      api.sendMessage("❌ সময় পাওয়া যায়নি!", threadID, messageID);
+      await fs.ensureDir(cacheDir);
+      await fs.writeFile(imagePath, buffer);
+
+      const infoMsg = `🌙 Ramadan Timings for ${city}\n📅 Date: ${date.readable}\n🕋 Hijri: ${date.hijri.date}\n\n⚪ Sehri Ends: ${sehriTime}\n🟠 Iftar Time: ${iftarTime}`;
+
+      await api.sendMessage({
+        body: infoMsg,
+        attachment: fs.createReadStream(imagePath)
+      }, threadID, () => fs.unlinkSync(imagePath), messageID);
+
+    } catch (error) {
+      console.log(error);
+      return api.sendMessage(`❌ Sorry, timings for "${city}" not found.`, threadID, messageID);
     }
   }
 };
