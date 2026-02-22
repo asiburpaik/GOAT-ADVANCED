@@ -1,9 +1,9 @@
 ┌─────────────────────────────────────────────
-│             GOAT BOT AKASH V2
+│             GOAT ADVANCED
 │       STEP-BY-STEP INSTALL GUIDE
 └─────────────────────────────────────────────
 
-This guide will show you how to set up GOAT BOT AKASH V2, deploy it on Render, and monitor it using UptimeRobot.
+This guide will show you how to set up GOAT ADVANCED, deploy it on Render, and monitor it using UptimeRobot.
 
 ─────────────────────────────────────────────
 1️⃣ IMPORT REPOSITORY ON GITHUB
@@ -11,7 +11,7 @@ This guide will show you how to set up GOAT BOT AKASH V2, deploy it on Render, a
 1. Log in to Github.
 2. Click New Repository → Import repository.
 3. Paste the repository link:
-   https://github.com/mdakashproject/GOAT-BOT-AKASH-V2.git
+   https://github.com/akashx404/GOAT-ADVANCED.git
 4. Select Private Repository.
 5. Click Begin import.
 
@@ -68,5 +68,5 @@ This guide will show you how to set up GOAT BOT AKASH V2, deploy it on Render, a
 
 ─────────────────────────────────────────────
 CONGRATULATIONS
-You have successfully set up GOAT BOT AKASH V2. Your bot is now running and your admin IDs are active.
+You have successfully set up GOAT BOT V2. Your bot is now running and your admin IDs are active.
 ─────────────────────────────────────────────
