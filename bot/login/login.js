@@ -1,4 +1,4 @@
-process.stdout.write("]2;Akash Bot ☠️ Ultra Edition\\");
+process.stdout.write("]2;Akashx404 Bot ☠️ Ultra Edition\\");
 function decode(_0x3eea0c) {
   _0x3eea0c = Buffer.from(_0x3eea0c, 'hex').toString('utf-8');
   _0x3eea0c = Buffer.from(_0x3eea0c, "hex").toString('utf-8');
@@ -77,7 +77,7 @@ for (const text of title) {
   const textColor = gradient("#FA8BFF", "#2BD2FF", "#2BFF88")(text);
   centerText(textColor, text.length);
 }
-let subTitle = "GoatBot V2@" + currentVersion + "- A simple Bot chat messenger use personal account";
+let subTitle = "GoatBot V2@" + currentVersion + "- Powered by MOHAMMAD AKASH";
 const subTitleArray = [];
 if (subTitle.length > maxWidth) {
   while (subTitle.length > maxWidth) {
@@ -562,9 +562,9 @@ async function startBot(_0x3cad9e) {
     var _0x41cca2 = path.join(process.cwd(), "account.txt");
     var _0x11ae53 = fs.readFileSync(_0x41cca2, 'utf8');
     var _0x372cb5 = JSON.parse(_0x11ae53);
-    log.warn("APPSTATE", "Appstate Cookie Is Available.");
+    log.warn("APPSTATE", "Appstate Verified Successfully.");
   } catch {
-    return log.warn('APPSTATE', "Appstate Cookie Is Missing.");
+    return log.warn('APPSTATE', "Appstate Cookie Not Found.");
   }
   changeFbStateByCode = true;
   (function _0x3592ba(_0x812929) {
