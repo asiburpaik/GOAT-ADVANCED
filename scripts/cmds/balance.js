@@ -36,7 +36,7 @@ module.exports.config = {
   countDown: 5,
   role: 0,
   shortDescription: "Real Bank Card",
-  category: "game"
+  category: "economy"
 };
 
 module.exports.onStart = async function ({ api, event, usersData }) {
