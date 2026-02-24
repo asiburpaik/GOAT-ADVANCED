@@ -3,7 +3,7 @@ exports.config = {
   version: "1.2",
   author: "MOHAMMAD AKASH",
   countDown: 0,
-  role: 0,
+  role: 2,
   shortDescription: "Group refresh frog pattern",
   category: "fun"
 };
