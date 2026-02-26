@@ -44,10 +44,10 @@
   },
   "database": {
     "type": "mongodb",
-    "uriMongodb": "mongodb+srv://akashx404:gamexakash@cluster.z3e9kbe.mongodb.net/?retryWrites=true&w=majority",
+    "uriMongodb": "mongodb+srv://meherazchisty57_db_user:Ea7xGHjpp7BGm8aG@cluster0.yibwo6a.mongodb.net/?appName=Cluster0",
     "autoSyncWhenStart": false,
     "autoRefreshThreadInfoFirstTime": true,
-    "notes": "Recommended using 'mongodb' or 'sqlite'."
+  "notes": "Recommended using 'mongodb' or 'sqlite'."
   },
   "timeZone": "Asia/Dhaka",
   "credentials": {
