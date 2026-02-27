@@ -3,7 +3,7 @@ const fs = require("fs");
 module.exports = {
   config: {
     name: "pending",
-    version: "1.0.6",
+    version: "1.0.7",
     author: "MOHAMMAD AKASH",
     aliases: [],
     role: 2,
@@ -15,16 +15,16 @@ module.exports = {
 
   languages: {
     en: {
-      invaildNumber: "%1 𝙸𝚂 𝙽𝙾𝚃 𝙰 𝚅𝙰𝙻𝙸𝙳 𝙽𝚄𝙼𝙱𝙴𝚁",
-      cancelSuccess: "❌ 𝚁𝙴𝙵𝚄𝚂𝙴𝙳 %1 𝚃𝙷𝚁𝙴𝙰𝙳𝚂!",
+      invaildNumber: "%1 IS NOT A VALID NUMBER",
+      cancelSuccess: "❌ REFUSED %1 THREADS!",
       notiBox:
-        "✨🎉 𝙲𝙾𝙽𝙶𝚁𝙰𝚃𝚂! 𝚈𝙾𝚄𝚁 𝙶𝚁𝙾𝚄𝙿 𝙷𝙰𝚂 𝙱𝙴𝙴𝙽 𝙰𝙿𝙿𝚁𝙾𝚅𝙴𝙳! 🎉✨\n🚀 𝚄𝚂𝙴 !𝙷𝙴𝙻𝙿 𝚃𝙾 𝙴𝚇𝙿𝙻𝙾𝚁𝙴 𝙰𝙻𝙻 𝙰𝚅𝙰𝙸𝙻𝙰𝙱𝙻𝙴 𝙲𝙾𝙼𝙼𝙰𝙽𝙳𝚂",
-      approveSuccess: "✅ 𝙰𝙿𝙿𝚁𝙾𝚅𝙴𝙳 %1 𝚃𝙷𝚁𝙴𝙰𝙳𝚂!",
-      cantGetPendingList: "⚠️ 𝙲𝙰𝙽'𝚃 𝙶𝙴𝚃 𝚃𝙷𝙴 𝙿𝙴𝙽𝙳𝙸𝙽𝙶 𝙻𝙸𝚂𝚃!",
+        "✨🎉 CONGRATS! YOUR GROUP HAS BEEN APPROVED! 🎉✨\n🚀 USE !help TO SEE ALL COMMANDS",
+      approveSuccess: "✅ APPROVED %1 THREADS!",
+      cantGetPendingList: "⚠️ CAN'T GET THE PENDING LIST!",
       returnListPending:
-        "»「𝙿𝙴𝙽𝙳𝙸𝙽𝙶」«❮ 𝚃𝙾𝚃𝙰𝙻 𝚃𝙷𝚁𝙴𝙰𝙳𝚂 𝚃𝙾 𝙰𝙿𝙿𝚁𝙾𝚅𝙴: %1 ❯\n\n%2",
+        "»「PENDING」«\nTOTAL THREADS TO APPROVE: %1\n\n%2",
       returnListClean:
-        "「𝙿𝙴𝙽𝙳𝙸𝙽𝙶」𝚃𝙷𝙴𝚁𝙴 𝙸𝚂 𝙽𝙾 𝚃𝙷𝚁𝙴𝙰𝙳 𝙸𝙽 𝚃𝙷𝙴 𝙻𝙸𝚂𝚃"
+        "「PENDING」THERE IS NO THREAD IN THE LIST"
     }
   },
 
@@ -35,7 +35,7 @@ module.exports = {
       : text;
   },
 
-  onStart: async function({ api, event }) {
+  onStart: async function ({ api, event }) {
     const { threadID, messageID, senderID } = event;
     let pendingList = [];
 
@@ -72,27 +72,23 @@ module.exports = {
         global.GoatBot.onReply.set(info.messageID, {
           commandName: this.config.name,
           author: senderID,
-          pending: pendingList,
-          unsendTimeout: setTimeout(
-            () => api.unsendMessage(info.messageID),
-            this.config.countDown * 1000
-          )
+          pending: pendingList
         });
       },
       messageID
     );
   },
 
-  onReply: async function({ event, Reply, api }) {
-    const { author, pending, unsendTimeout } = Reply;
+  onReply: async function ({ event, Reply, api }) {
+    const { author, pending } = Reply;
     if (String(event.senderID) !== String(author)) return;
-    clearTimeout(unsendTimeout);
 
     const input = event.body.trim().toLowerCase().split(/\s+/);
     const botID = api.getCurrentUserID();
     const nickNameBot = global.GoatBot?.config?.nickNameBot;
     let count = 0;
 
+    // ❌ CANCEL
     if (input[0] === "c" || input[0] === "cancel") {
       for (let i = 1; i < input.length; i++) {
         const idx = parseInt(input[i]);
@@ -108,13 +104,14 @@ module.exports = {
         );
         count++;
       }
+
       return api.sendMessage(
         this._getText("cancelSuccess", count),
         event.threadID
       );
     }
 
-    // ✅ APPROVE + AUTO NICKNAME (config.json)
+    // ✅ APPROVE
     for (const v of input) {
       const idx = parseInt(v);
       if (isNaN(idx) || idx <= 0 || idx > pending.length)
@@ -124,6 +121,7 @@ module.exports = {
         );
 
       const tID = pending[idx - 1].threadID;
+
       await api.sendMessage(this._getText("notiBox"), tID);
 
       if (nickNameBot)
